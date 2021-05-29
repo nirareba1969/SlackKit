@@ -65,6 +65,39 @@ public struct NetworkInterface {
             }
         }.resume()
     }
+    
+    internal func postRequest(
+        _ endpoint: Endpoint,
+        parameters: [String: Any?],
+        successClosure: @escaping ([String: Any]) -> Void,
+        errorClosure: @escaping (SlackError) -> Void
+    ) {
+        guard let url = requestURL(for: endpoint, parameters: [:]) else {
+            errorClosure(SlackError.clientNetworkError)
+            return
+        }
+        
+        do {
+            let data = try JSONSerialization.data(withJSONObject: parameters)
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            let contentType = "application/json"
+            request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+            request.httpBody = data
+            
+            session.dataTask(with: request) {(data, response, publicError) in
+                do {
+                    successClosure(try NetworkInterface.handleResponse(data, response: response, publicError: publicError))
+                } catch let error {
+                    errorClosure(error as? SlackError ?? SlackError.unknownError)
+                }
+            }.resume()
+        } catch {
+            errorClosure(error as? SlackError ?? SlackError.unknownError)
+        }
+    }
+
 
     //Adapted from https://gist.github.com/erica/baa8a187a5b4796dab27
     internal func synchronusRequest(_ endpoint: Endpoint, parameters: [String: Any?]) -> [String: Any]? {
