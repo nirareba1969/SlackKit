@@ -1018,11 +1018,10 @@ extension WebAPI {
 extension WebAPI {
     public func addReminder(text: String, time: String, success: SuccessClosure?, failure: FailureClosure?) {
         let parameters: [String: Any?] = [
-            "token": token,
             "text": text,
             "time": time,
         ]
-        networkInterface.request(.remindersAdd, parameters: parameters, successClosure: { _ in
+        networkInterface.postRequest(.remindersAdd, token: token, parameters: parameters, successClosure: { _ in
             success?(true)
         }) {(error) in
             failure?(error)
