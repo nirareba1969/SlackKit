@@ -68,6 +68,7 @@ public struct NetworkInterface {
     
     internal func postRequest(
         _ endpoint: Endpoint,
+        token: String,
         parameters: [String: Any?],
         successClosure: @escaping ([String: Any]) -> Void,
         errorClosure: @escaping (SlackError) -> Void
@@ -82,8 +83,12 @@ public struct NetworkInterface {
             
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            let contentType = "application/json"
+            
+            request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+            
+            let contentType = "application/json; charset=utf-8"
             request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+            
             request.httpBody = data
             
             session.dataTask(with: request) {(data, response, publicError) in

@@ -124,7 +124,7 @@ extension WebAPI {
 // MARK: - Auth
 extension WebAPI {
     public func authenticationTest(success: AuthTestClosure?, failure: FailureClosure?) {
-        networkInterface.postRequest(.authTest, parameters: ["token": token], successClosure: { (response) in
+        networkInterface.postRequest(.authTest, token: token, parameters: [:], successClosure: { (response) in
             success?(response["user_id"] as? String, response["team_id"] as? String)
         }) {(error) in
             failure?(error)
